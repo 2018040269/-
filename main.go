@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -29,28 +30,32 @@ type Customer struct {
 	perEatTime time.Duration //吃一个寿司需要的时间
 }
 
-var Ch = make(chan int, N)
+var Ch = make(chan string, N)
 var count = 0
 var (
 	logFilename = flag.String("log", "diary.log", "helpmessage")
 )
 
-func (cook *Cooker) Produce(in chan<- int) {
+func (cook *Cooker) Produce(in chan<- string) {
 	for count = 0; count < totalNum; count++ {
 		time.Sleep(cook.perTime)
-		in <- count
 		cook.presentNum++
-		fmt.Println(cook.name+"制作了寿司", count)
-		log.Println(cook.name+"制作了寿司", count)
+		s1 := cook.name
+		s2 := strconv.FormatInt(int64(cook.presentNum), 10)
+		s3 := s1 + "做的第" + s2 + "个寿司"
+		in <- s3
+
+		fmt.Println(cook.name+"制作了", s3)
+		log.Println(cook.name+"制作了", s3)
 	}
 }
 
-func (eat *Customer) Buy(out <-chan int) {
+func (eat *Customer) Buy(out <-chan string) {
 	for i := 0; i < eat.buyNum; i++ {
 		j := <-out
 		time.Sleep(eat.perEatTime)
-		fmt.Println(eat.name+"吃了寿司", j)
-		log.Println(eat.name+"吃了寿司", j)
+		fmt.Println(eat.name+"吃了", j)
+		log.Println(eat.name+"吃了", j)
 	}
 }
 
@@ -84,15 +89,15 @@ func main() {
 	}
 
 	customers := [n]Customer{
-		{"顾客1", 5, 3e9},
-		{"顾客2", 3, 4e9},
-		{"顾客3", 6, 3e9},
-		{"顾客4", 2, 2e9},
-		{"顾客5", 1, 6e9},
-		{"顾客6", 7, 2e9},
-		{"顾客7", 4, 2e9},
-		{"顾客8", 1, 4e9},
-		{"顾客9", 5, 3e9},
+		{"顾客01", 5, 3e9},
+		{"顾客02", 3, 4e9},
+		{"顾客03", 6, 3e9},
+		{"顾客04", 2, 2e9},
+		{"顾客05", 1, 6e9},
+		{"顾客06", 7, 2e9},
+		{"顾客07", 4, 2e9},
+		{"顾客08", 1, 4e9},
+		{"顾客09", 5, 3e9},
 		{"顾客10", 2, 3e9},
 		{"顾客11", 4, 6e9},
 		{"顾客12", 3, 4e9},
