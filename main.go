@@ -31,20 +31,17 @@ type Customer struct {
 }
 
 var Ch = make(chan string, N)
-var count = 0
+var Total = make(chan int, totalNum)
 var (
 	logFilename = flag.String("log", "diary.log", "helpmessage")
 )
-var Total = make(chan int, totalNum)
 
 func (cook *Cooker) Produce(in chan<- string) {
-
 	for i := 0; i < cook.totalNumP; i++ {
 		select {
 		case v := <-Total:
 			fmt.Printf("第%v份材料\n", v)
 			log.Printf("第%v份材料\n", v)
-
 			cook.presentNum++
 			s1 := cook.name
 			s2 := strconv.FormatInt(int64(cook.presentNum), 10)
@@ -52,7 +49,7 @@ func (cook *Cooker) Produce(in chan<- string) {
 			in <- s3
 			fmt.Println(cook.name+"制作了寿司", s3)
 			log.Println(cook.name+"制作了寿司", s3)
-
+			time.Sleep(cook.perTime)
 		default:
 			fmt.Println("原材料用完了。")
 		}
@@ -63,9 +60,10 @@ func (cook *Cooker) Produce(in chan<- string) {
 func (eat *Customer) Buy(out <-chan string) {
 	for i := 0; i < eat.buyNum; i++ {
 		j := <-out
-		//time.Sleep(eat.perEatTime)
+		time.Sleep(eat.perEatTime)
 		fmt.Println(eat.name+"吃了寿司", j)
 		log.Println(eat.name+"吃了寿司", j)
+		time.Sleep(eat.perEatTime)
 	}
 }
 
